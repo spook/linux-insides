@@ -36,9 +36,9 @@ CS selector 0xf000
 CS base     0xffff0000
 ```
 
-The processor starts working in [real mode](https://en.wikipedia.org/wiki/Real_mode). Let's back up a little and try to understand [memory segmentation](https://en.wikipedia.org/wiki/Memory_segmentation) in this mode. Real mode is supported on all x86-compatible processors, from the [8086](https://en.wikipedia.org/wiki/Intel_8086) CPU all the way to the modern Intel 64-bit CPUs. The `8086` processor has a 20-bit address bus, which means that it could work with a `0-0xFFFFF` or `1 megabyte` address space. But it only has `16-bit` registers, which have a maximum address of `2^16 - 1` or `0xffff` (64 [kibibytes](https://en.wikipedia.org/wiki/Kibibyte)).
+The processor starts working in [real mode](https://en.wikipedia.org/wiki/Real_mode). Let's back up a little and try to understand [memory segmentation](https://en.wikipedia.org/wiki/Memory_segmentation) in this mode. Real mode is supported on all x86-compatible processors, from the [8086](https://en.wikipedia.org/wiki/Intel_8086) CPU all the way to the modern Intel 64-bit CPUs. The `8086` processor has a 20-bit address bus, which means that it could work with a `0-0xFFFFF` or [`1 mebibyte`](https://en.wikipedia.org/wiki/Mebibyte) address space. But it only has `16-bit` registers, which have a maximum address of `2^16 - 1` or `0xffff` (64 [kibibytes](https://en.wikipedia.org/wiki/Kibibyte)).
 
-[Memory segmentation](http://en.wikipedia.org/wiki/Memory_segmentation) is used to make use of all the address space available. All memory is divided into small, fixed-size segments of `65536` bytes (64 KB). Since we cannot address memory above `64 [KiB](https://en.wikipedia.org/wiki/Kibibyte)` with 16-bit registers, an alternate method was devised.
+[Memory segmentation](http://en.wikipedia.org/wiki/Memory_segmentation) is used to make use of all the address space available. All memory is divided into small, fixed-size segments of `65536` bytes (64 KiB). Since we cannot address memory above `64 KiB` with 16-bit registers, an alternate method was devised.
 
 An address consists of two parts: a segment selector, which has a base address, and an offset from this base address. In real mode, the associated base address of a segment selector is `Segment Selector * 16`. Thus, to get a physical address in memory, we need to multiply the segment selector part by `16` and add the offset to it:
 
@@ -60,7 +60,7 @@ But, if we take the largest segment selector and offset, `0xffff:0xffff`, then t
 '0x10ffef'
 ```
 
-which is `65520` bytes past the first megabyte. Since only one megabyte is accessible in real mode, `0x10ffef` becomes `0x00ffef` with the [A20 line](https://en.wikipedia.org/wiki/A20_line) disabled.
+which is `65520` bytes past the first [mebibyte](https://en.wikipedia.org/wiki/Mebibyte). Since only one mebibyte is accessible in real mode, `0x10ffef` becomes `0x00ffef` with the [A20 line](https://en.wikipedia.org/wiki/A20_line) disabled.
 
 Ok, now we know a little bit about real mode and memory addressing in this mode. Let's get back to discussing register values after reset.
 
@@ -162,7 +162,7 @@ just as explained above. We have only 16-bit general purpose registers; the maxi
 '0x10ffef'
 ```
 
-where `0x10ffef` is equal to `1[MiB](https://en.wikipedia.org/wiki/Mebibyte) + 64KB - 16b`. An [8086](https://en.wikipedia.org/wiki/Intel_8086) processor (which was the first processor with real mode), in contrast, has a 20-bit address line. Since `2^20 = 1048576` is 1[MiB](https://en.wikipedia.org/wiki/Mebibyte), this means that the actual available memory is 1[MiB](https://en.wikipedia.org/wiki/Mebibyte).
+where `0x10ffef` is equal to `1MiB + 64KiB - 16B`. An [8086](https://en.wikipedia.org/wiki/Intel_8086) processor (which was the first processor with real mode), in contrast, has a 20-bit address line. Since `2^20 = 1048576` is 1 [MiB](https://en.wikipedia.org/wiki/Mebibyte), this means that the actual available memory is 1 MiB.
 
 General real mode's memory map is as follows:
 
@@ -180,10 +180,10 @@ General real mode's memory map is as follows:
 0x000F0000 - 0x000FFFFF - System BIOS
 ```
 
-In the beginning of this post, I wrote that the first instruction executed by the CPU is located at address `0xFFFFFFF0`, which is much larger than `0xFFFFF` (1MiB). How can the CPU access this address in real mode? The answer is in the [coreboot](http://www.coreboot.org/Developer_Manual/Memory_map) documentation:
+In the beginning of this post, I wrote that the first instruction executed by the CPU is located at address `0xFFFFFFF0`, which is much larger than `0xFFFFF` (1 MiB). How can the CPU access this address in real mode? The answer is in the [coreboot](http://www.coreboot.org/Developer_Manual/Memory_map) documentation:
 
 ```
-0xFFFE_0000 - 0xFFFF_FFFF: 128 kilobyte(sic*) ROM mapped into address space
+0xFFFE_0000 - 0xFFFF_FFFF: 128 kilobyte(*sic) ROM mapped into address space
 ```
 *128 [kibibytes](https://en.wikipedia.org/wiki/Kibibyte)
 
